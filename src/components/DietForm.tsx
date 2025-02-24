@@ -1,93 +1,228 @@
-import { useState } from 'react';
 
-export default function DietForm() {
+// import React, { useState } from 'react';
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+// export function DietForm() {
+//   const [meal, setMeal] = useState({
+//     name: '',
+//     calories: '',
+//     protein: '',
+//     carbs: '',
+//     fat: '',
+//   });
+//   const [message, setMessage] = useState('');
+//   const [isLoading, setIsLoading] = useState(false);
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setMessage('');
+//     setIsLoading(true);
+
+//     try {
+//       const response = await fetch('/api/meals', {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify(meal),
+//       });
+
+//       const data = await response.json();
+
+//       if (response.ok) {
+//         setMessage('Meal logged successfully!');
+//         setMeal({ name: '', calories: '', protein: '', carbs: '', fat: '' });
+//       } else {
+//         setMessage(`Error: ${data.error || 'Failed to log meal'}`);
+//       }
+//     } catch (error) {
+//       setMessage('An error occurred while logging the meal.');
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   return (
+//     <Card className="w-full max-w-md mx-auto">
+//       <CardHeader>
+//         <CardTitle>Log a Meal</CardTitle>
+//       </CardHeader>
+//       <CardContent>
+//         <form onSubmit={handleSubmit} className="space-y-4">
+//           <div className="space-y-2">
+//             <Label htmlFor="name">Meal Name</Label>
+//             <Input
+//               id="name"
+//               value={meal.name}
+//               onChange={(e) => setMeal({ ...meal, name: e.target.value })}
+//               required
+//             />
+//           </div>
+//           <div className="space-y-2">
+//             <Label htmlFor="calories">Calories</Label>
+//             <Input
+//               id="calories"
+//               type="number"
+//               value={meal.calories}
+//               onChange={(e) => setMeal({ ...meal, calories: e.target.value })}
+//               required
+//             />
+//           </div>
+//           <div className="space-y-2">
+//             <Label htmlFor="protein">Protein (g)</Label>
+//             <Input
+//               id="protein"
+//               type="number"
+//               value={meal.protein}
+//               onChange={(e) => setMeal({ ...meal, protein: e.target.value })}
+//               required
+//             />
+//           </div>
+//           <div className="space-y-2">
+//             <Label htmlFor="carbs">Carbs (g)</Label>
+//             <Input
+//               id="carbs"
+//               type="number"
+//               value={meal.carbs}
+//               onChange={(e) => setMeal({ ...meal, carbs: e.target.value })}
+//               required
+//             />
+//           </div>
+//           <div className="space-y-2">
+//             <Label htmlFor="fat">Fat (g)</Label>
+//             <Input
+//               id="fat"
+//               type="number"
+//               value={meal.fat}
+//               onChange={(e) => setMeal({ ...meal, fat: e.target.value })}
+//               required
+//             />
+//           </div>
+//           <Button type="submit" disabled={isLoading}>
+//             {isLoading ? 'Logging Meal...' : 'Log Meal'}
+//           </Button>
+//           {message && <p className="mt-4 text-sm text-center">{message}</p>}
+//         </form>
+//       </CardContent>
+//     </Card>
+//   );
+// }
+
+"use client"
+
+import type React from "react"
+import { useState } from "react"
+import { Button } from "@/src/components/ui/button"
+import { Input } from "@/src/components/ui/input"
+import { Label } from "@/src/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
+
+interface DietFormProps {
+  onMealAdded: () => void
+}
+
+export function DietForm({ onMealAdded }: DietFormProps) {
   const [meal, setMeal] = useState({
-    name: '',
-    calories: '',
-    protein: '',
-    carbs: '',
-    fat: '',
-  });
+    name: "",
+    calories: "",
+    protein: "",
+    carbs: "",
+    fat: "",
+  })
+  const [message, setMessage] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement API call to save meal
-    console.log('Meal submitted:', meal);
-  };
+    e.preventDefault()
+    setMessage("")
+    setIsLoading(true)
+
+    try {
+      const response = await fetch("/api/meals", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(meal),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setMessage("Meal logged successfully!")
+        setMeal({ name: "", calories: "", protein: "", carbs: "", fat: "" })
+        onMealAdded() // Call this function to refresh the meal list
+      } else {
+        setMessage(`Error: ${data.error || "Failed to log meal"}`)
+      }
+    } catch (error) {
+      setMessage("An error occurred while logging the meal.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Meal Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          value={meal.name}
-          onChange={(e) => setMeal({ ...meal, name: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="calories" className="block text-sm font-medium text-gray-700">
-          Calories
-        </label>
-        <input
-          type="number"
-          id="calories"
-          value={meal.calories}
-          onChange={(e) => setMeal({ ...meal, calories: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="protein" className="block text-sm font-medium text-gray-700">
-          Protein (g)
-        </label>
-        <input
-          type="number"
-          id="protein"
-          value={meal.protein}
-          onChange={(e) => setMeal({ ...meal, protein: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="carbs" className="block text-sm font-medium text-gray-700">
-          Carbs (g)
-        </label>
-        <input
-          type="number"
-          id="carbs"
-          value={meal.carbs}
-          onChange={(e) => setMeal({ ...meal, carbs: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="fat" className="block text-sm font-medium text-gray-700">
-          Fat (g)
-        </label>
-        <input
-          type="number"
-          id="fat"
-          value={meal.fat}
-          onChange={(e) => setMeal({ ...meal, fat: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          required
-        />
-      </div>
-      <button
-        type="submit"
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-      >
-        Log Meal
-      </button>
-    </form>
-  );
+    <Card className="w-full max-w-md mx-auto mb-8">
+      <CardHeader>
+        <CardTitle>Log a Meal</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Meal Name</Label>
+            <Input id="name" value={meal.name} onChange={(e) => setMeal({ ...meal, name: e.target.value })} required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="calories">Calories</Label>
+            <Input
+              id="calories"
+              type="number"
+              value={meal.calories}
+              onChange={(e) => setMeal({ ...meal, calories: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="protein">Protein (g)</Label>
+            <Input
+              id="protein"
+              type="number"
+              value={meal.protein}
+              onChange={(e) => setMeal({ ...meal, protein: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="carbs">Carbs (g)</Label>
+            <Input
+              id="carbs"
+              type="number"
+              value={meal.carbs}
+              onChange={(e) => setMeal({ ...meal, carbs: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="fat">Fat (g)</Label>
+            <Input
+              id="fat"
+              type="number"
+              value={meal.fat}
+              onChange={(e) => setMeal({ ...meal, fat: e.target.value })}
+              required
+            />
+          </div>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Logging Meal..." : "Log Meal"}
+          </Button>
+          {message && <p className="mt-4 text-sm text-center">{message}</p>}
+        </form>
+      </CardContent>
+    </Card>
+  )
 }
+

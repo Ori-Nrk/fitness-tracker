@@ -1,38 +1,50 @@
-import oracledb from 'oracledb';
+import * as oracledb from "oracledb"
+import dotenv from 'dotenv'
 
-const dbConfig: oracledb.ConnectionAttributes = {
-  user: process.env.ORACLE_USER!,
-  password: process.env.ORACLE_PASSWORD!,
-  connectString: process.env.ORACLE_CONNECTION_STRING!,
-};
+// Load environment variables
+dotenv.config()
 
-export const db = {
-  async connect(): Promise<oracledb.Connection> {
-    try {
-      const connection = await oracledb.getConnection({
-        ...dbConfig,
-        autoCommit: true,
-      });
-      return connection;
-    } catch (error) {
-      console.error('Error connecting to Oracle database:', error);
-      throw error;
+// Initialize Oracle client
+try {
+  // Set Oracle client directory - adjust path according to your installation
+  oracledb.initOracleClient({ libDir: '/opt/oracle/instantclient_19_8' });
+} catch (err) {
+  console.warn('Oracle Client library already initialized');
+}
+
+// Get a connection from the pool
+export async function getConnection() {
+  try {
+    const connection = await oracledb.getConnection({
+      user: process.env.ORACLE_USER!,
+      password: process.env.ORACLE_PASSWORD!,
+      connectString: process.env.ORACLE_CONNECT_STRING!
+    });
+    return connection;
+  } catch (err) {
+    console.error('Error getting connection:', err);
+    throw err;
+  }
+}
+
+// Execute a query and return results
+export async function executeQuery(sql: string, params: any[] = []) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const result = await connection.execute(sql, params, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+    return result.rows;
+  } catch (err) {
+    console.error('Error executing query:', err);
+    throw err;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error('Error closing connection:', err);
+      }
     }
-  },
+  }
+}
 
-  async getUserByEmail(email: string) {
-    const connection = await this.connect();
-    try {
-      const result = await connection.execute(
-        'SELECT * FROM users WHERE email = :email',
-        { email },
-        { outFormat: oracledb.OUT_FORMAT_OBJECT }
-      );
-      return result.rows[0];
-    } finally {
-      await connection.close();
-    }
-  },
-
-  // Add more database operations here
-};

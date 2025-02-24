@@ -1,72 +1,299 @@
-import Link from 'next/link';
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Dumbbell, Apple, Target } from 'lucide-react';
+"use client"
 
-export default function Home() {
+import type React from "react"
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
+import { Input } from "@/src/components/ui/input"
+import { Label } from "@/src/components/ui/label"
+import { Button } from "@/src/components/ui/button"
+
+export default function FitnessTracker() {
+  const [workout, setWorkout] = useState({
+    name: "",
+    type: "",
+    duration: "",
+    caloriesBurned: "",
+  })
+
+  const [meal, setMeal] = useState({
+    name: "",
+    calories: "",
+    protein: "",
+    carbs: "",
+    fat: "",
+  })
+
+  const [reminder, setReminder] = useState({
+    title: "",
+    date: "",
+    time: "",
+  })
+
+  const [errors, setErrors] = useState({
+    workouts: "",
+    meals: "",
+    reminders: "",
+  })
+
+  const handleWorkoutSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const res = await fetch("/api/workouts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(workout),
+      })
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+      setWorkout({ name: "", type: "", duration: "", caloriesBurned: "" })
+      setErrors((prev) => ({ ...prev, workouts: "" }))
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, workouts: "Failed to log workout" }))
+    }
+  }
+
+  const handleMealSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const res = await fetch("/api/meals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(meal),
+      })
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+      setMeal({ name: "", calories: "", protein: "", carbs: "", fat: "" })
+      setErrors((prev) => ({ ...prev, meals: "" }))
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, meals: "Failed to log meal" }))
+    }
+  }
+
+  const handleReminderSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const res = await fetch("/api/reminders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reminder),
+      })
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+      setReminder({ title: "", date: "", time: "" })
+      setErrors((prev) => ({ ...prev, reminders: "" }))
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, reminders: "Failed to set reminder" }))
+    }
+  }
+
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Hero Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-blue-50 to-white">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center space-y-8 text-center">
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-                Track Your Fitness Journey
-              </h1>
-              <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                Achieve your fitness goals with our comprehensive tracking platform. Monitor workouts, diet, and progress all in one place.
-              </p>
-            </div>
-            <div className="space-x-4">
-              <Link href="/dashboard">
-                <Button size="lg" className="inline-flex items-center">
-                  Get Started <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link href="/about">
-                <Button size="lg" variant="outline">
-                  Learn More
-                </Button>
-              </Link>
-            </div>
-          </div>
+    <div className="min-h-screen bg-background">
+      <nav className="border-b">
+        <div className="flex h-16 items-center px-4">
+          <h1 className="text-xl font-semibold">Fitness Tracker</h1>
+          <nav className="ml-6 flex items-center space-x-4">
+            <a href="#" className="text-sm font-medium">
+              Dashboard
+            </a>
+            <a href="#" className="text-sm font-medium">
+              Workouts
+            </a>
+            <a href="#" className="text-sm font-medium">
+              Diet
+            </a>
+            <a href="#" className="text-sm font-medium">
+              Progress
+            </a>
+          </nav>
         </div>
-      </section>
+      </nav>
 
-      {/* Features Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-white">
-        <div className="container px-4 md:px-6">
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="p-4 bg-blue-50 rounded-full">
-                <Dumbbell className="h-8 w-8 text-blue-500" />
-              </div>
-              <h3 className="text-xl font-bold">Track Workouts</h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Log and monitor your exercise routines with detailed tracking of sets, reps, and progress.
-              </p>
-            </div>
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="p-4 bg-green-50 rounded-full">
-                <Apple className="h-8 w-8 text-green-500" />
-              </div>
-              <h3 className="text-xl font-bold">Monitor Diet</h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Keep track of your daily nutrition with our comprehensive diet logging system.
-              </p>
-            </div>
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="p-4 bg-purple-50 rounded-full">
-                <Target className="h-8 w-8 text-purple-500" />
-              </div>
-              <h3 className="text-xl font-bold">Set Goals</h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Set and track your fitness goals with progress monitoring and achievement tracking.
-              </p>
-            </div>
-          </div>
+      <main className="container mx-auto p-4 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Workout Form */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Log a Workout</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleWorkoutSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="workoutName">Workout Name</Label>
+                  <Input
+                    id="workoutName"
+                    value={workout.name}
+                    onChange={(e) => setWorkout((prev) => ({ ...prev, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="workoutType">Type</Label>
+                  <Input
+                    id="workoutType"
+                    value={workout.type}
+                    onChange={(e) => setWorkout((prev) => ({ ...prev, type: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="duration">Duration (minutes)</Label>
+                  <Input
+                    id="duration"
+                    type="number"
+                    value={workout.duration}
+                    onChange={(e) => setWorkout((prev) => ({ ...prev, duration: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="caloriesBurned">Calories Burned</Label>
+                  <Input
+                    id="caloriesBurned"
+                    type="number"
+                    value={workout.caloriesBurned}
+                    onChange={(e) => setWorkout((prev) => ({ ...prev, caloriesBurned: e.target.value }))}
+                    required
+                  />
+                </div>
+                <Button type="submit">Log Workout</Button>
+                {errors.workouts && <p className="text-sm text-red-500 mt-2">{errors.workouts}</p>}
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Meal Form */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Log a Meal</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleMealSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="mealName">Meal Name</Label>
+                  <Input
+                    id="mealName"
+                    value={meal.name}
+                    onChange={(e) => setMeal((prev) => ({ ...prev, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="calories">Calories</Label>
+                  <Input
+                    id="calories"
+                    type="number"
+                    value={meal.calories}
+                    onChange={(e) => setMeal((prev) => ({ ...prev, calories: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="protein">Protein (g)</Label>
+                  <Input
+                    id="protein"
+                    type="number"
+                    value={meal.protein}
+                    onChange={(e) => setMeal((prev) => ({ ...prev, protein: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="carbs">Carbs (g)</Label>
+                  <Input
+                    id="carbs"
+                    type="number"
+                    value={meal.carbs}
+                    onChange={(e) => setMeal((prev) => ({ ...prev, carbs: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fat">Fat (g)</Label>
+                  <Input
+                    id="fat"
+                    type="number"
+                    value={meal.fat}
+                    onChange={(e) => setMeal((prev) => ({ ...prev, fat: e.target.value }))}
+                    required
+                  />
+                </div>
+                <Button type="submit">Log Meal</Button>
+                {errors.meals && <p className="text-sm text-red-500 mt-2">{errors.meals}</p>}
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Reminder Form */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Set a Reminder</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleReminderSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reminderTitle">Reminder Title</Label>
+                  <Input
+                    id="reminderTitle"
+                    value={reminder.title}
+                    onChange={(e) => setReminder((prev) => ({ ...prev, title: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="date">Date</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={reminder.date}
+                    onChange={(e) => setReminder((prev) => ({ ...prev, date: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="time">Time</Label>
+                  <Input
+                    id="time"
+                    type="time"
+                    value={reminder.time}
+                    onChange={(e) => setReminder((prev) => ({ ...prev, time: e.target.value }))}
+                    required
+                  />
+                </div>
+                <Button type="submit">Set Reminder</Button>
+                {errors.reminders && <p className="text-sm text-red-500 mt-2">{errors.reminders}</p>}
+              </form>
+            </CardContent>
+          </Card>
         </div>
-      </section>
+
+        {/* Lists Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Workouts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-muted-foreground">No recent workouts</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Meals</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-muted-foreground">No recent meals</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Upcoming Reminders</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-muted-foreground">No upcoming reminders</div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
     </div>
-  );
+  )
 }
+
